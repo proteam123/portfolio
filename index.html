@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mishal Muhammed – AI & Data Science Portfolio</title>
+  <meta name="description" content="Portfolio of Mishal Muhammed – Artificial Intelligence and Data Science Student." />
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css" />
+  
+  <!-- React and ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  
+  <!-- Babel -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Main React App -->
+  <script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+// --- Hooks ---
+const useScrollReveal = (options = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }) => {
+  const ref = useRef(null);
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('active');
+      } else {
+        entry.target.classList.remove('active'); 
+      }
+    }, options);
+
+    if (ref.current) observer.observe(ref.current);
+    return () => {
+      if (ref.current) observer.unobserve(ref.current);
+    };
+  }, [options]);
+
+  return ref;
+};
+
+// --- Components ---
+const CustomCursor = () => {
+  const cursorRef = useRef(null);
+  const followerRef = useRef(null);
+
+  useEffect(() => {
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+
+    let mouseX = 0, mouseY = 0;
+    let followerX = 0, followerY = 0;
+    
+    const onMouseMove = (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      if (cursorRef.current) {
+        cursorRef.current.style.left = `${mouseX}px`;
+        cursorRef.current.style.top = `${mouseY}px`;
+      }
+    };
+
+    const animateFollower = () => {
+      followerX += (mouseX - followerX) * 0.15;
+      followerY += (mouseY - followerY) * 0.15;
+      if (followerRef.current) {
+        followerRef.current.style.left = `${followerX}px`;
+        followerRef.current.style.top = `${followerY}px`;
+      }
+      requestAnimationFrame(animateFollower);
+    };
+
+    const onMouseHover = () => {
+      if (cursorRef.current) cursorRef.current.classList.add('hovering');
+      if (followerRef.current) followerRef.current.classList.add('hovering');
+    };
+    
+    const onMouseLeave = () => {
+      if (cursorRef.current) cursorRef.current.classList.remove('hovering');
+      if (followerRef.current) followerRef.current.classList.remove('hovering');
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    requestAnimationFrame(animateFollower);
+
+    const hoverElements = document.querySelectorAll('a, button');
+    hoverElements.forEach(el => {
+      el.addEventListener('mouseenter', onMouseHover);
+      el.addEventListener('mouseleave', onMouseLeave);
+    });
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      hoverElements.forEach(el => {
+        el.removeEventListener('mouseenter', onMouseHover);
+        el.removeEventListener('mouseleave', onMouseLeave);
+      });
+    };
+  }, []);
+
+  return (
+    <React.Fragment>
+      <div className="cursor" ref={cursorRef}></div>
+      <div className="cursor-follower" ref={followerRef}></div>
+    </React.Fragment>
+  );
+};
+
+const Navbar = () => {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <nav className={scrolled ? "scrolled" : ""}>
+      <div className="container nav-content">
+        <a href="#" className="logo">Mishal.</a>
+        <ul className="nav-links">
+          <li><a href="#about">About</a></li>
+          <li><a href="#work">Projects</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+  );
+};
+
+const Hero = () => {
+  const ref1 = useScrollReveal();
+  const ref2 = useScrollReveal();
+  const ref3 = useScrollReveal();
+  const ref4 = useScrollReveal();
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrolled = window.scrollY;
+      const heroText = document.querySelector('.hero-text');
+      if (heroText) {
+        heroText.style.transform = `translateY(${scrolled * 0.4}px)`;
+        heroText.style.opacity = 1 - scrolled / 600;
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <section className="hero">
+      <div className="container hero-layout">
+        <div className="hero-image reveal delay-1" ref={ref1}>
+          <img src="profile.jpeg" alt="Mishal Muhammed" />
+        </div>
+        <div className="hero-text">
+          <span className="hero-greeting reveal delay-2" ref={ref2}>Hello, I'm Mishal Muhammed</span>
+          <h1 className="hero-title reveal delay-2" ref={ref3} style={{fontSize: '4.5rem'}}>
+            AI & Data Science <i>Student</i>.
+          </h1>
+          <p className="hero-desc reveal delay-3" ref={ref4}>
+            I am a Data Science undergraduate passionate about building structured, user-focused AI systems. I specialize in computer vision, machine learning, and seamless web experiences.
+          </p>
+          <div className="hero-actions reveal delay-3">
+            <a href="#work" className="btn btn-primary">Selected Works</a>
+            <a href="Mishal_CV (1) (1).pdf" target="_blank" className="btn btn-ghost" style={{ marginLeft: '1rem' }}>Download CV</a>
+            <a href="#contact" className="btn btn-ghost" style={{ marginLeft: '1rem', border: 'none' }}>Get in Touch</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const Projects = () => {
+  const sectionRef = useScrollReveal();
+  
+  const projects = [
+    {
+      id: "01",
+      title: "Mentora-AI – AI Mentor and Tutor System",
+      desc: "An AI-based academic mentor system supporting students, teachers, and parents. Automates attendance tracking, performance monitoring, and integrates NLP-based features for personalized learning guidance.",
+      tech: ["Python", "Flask", "NLP", "SQLite"],
+      link: "https://github.com/proteam123/mentor",
+      linkText: "View on GitHub ↗"
+    },
+    {
+      id: "02",
+      title: "AI Pose Estimation & Curl Tracker",
+      desc: "An AI-powered system tracking human body posture and bicep curl movements in real time using pose estimation techniques to detect joint angles and count repetitions with visual feedback.",
+      tech: ["Python", "OpenCV", "MediaPipe", "Computer Vision"]
+    },
+    {
+      id: "03",
+      title: "Cyber Security & Ethical Hacking",
+      desc: "Completed a hands-on internship covering cybersecurity fundamentals, ethical hacking concepts, and practical exposure to Kali Linux tools for security testing.",
+      tech: ["Kali Linux", "Security Testing", "Ethical Hacking"],
+      link: "Mishal Muhammed TM Internship Certificate.pdf",
+      linkText: "View Certificate ↗"
+    },
+    {
+      id: "04",
+      title: "Student Engagement Detection",
+      desc: "Seminar presentation on AI-based student engagement detection using deep learning. Explored ensemble learning approaches involving CNN and ResNet models for engagement analytics.",
+      tech: ["Deep Learning", "CNN", "ResNet", "Analytics"]
+    }
+  ];
+
+  return (
+    <section id="work" className="section section-bg-white">
+      <div className="container">
+        <div className="section-header reveal" ref={sectionRef}>
+          <span className="section-tag">Portfolio</span>
+          <h2 className="section-title">Key Projects & Experience</h2>
+        </div>
+        <div className="projects-grid">
+          {projects.map((project, idx) => {
+            const cardRef = useScrollReveal({ threshold: 0.2 });
+            return (
+              <div key={idx} className={`project-card reveal delay-${(idx % 2) + 1}`} ref={cardRef}>
+                <div className="project-top">
+                  <span className="project-number">{project.id}</span>
+                  {project.link && (
+                    <div className="project-links">
+                      <a href={project.link} target="_blank">{project.linkText}</a>
+                    </div>
+                  )}
+                </div>
+                <h3 className="project-title">{project.title}</h3>
+                <p className="project-desc">{project.desc}</p>
+                <div className="project-tech">
+                  {project.tech.map((t, i) => <span key={i}>{t}</span>)}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const About = () => {
+  const ref = useScrollReveal();
+  const eduRef = useScrollReveal();
+  const sumRef = useScrollReveal();
+  const intRef = useScrollReveal();
+  
+  const skills = [
+    "Python", "JavaScript", "C", "R", "HTML / CSS",
+    "Flask", "Streamlit", "OpenCV", "MediaPipe", "Scikit-learn",
+    "Machine Learning", "Computer Vision", "NLP", "Git / GitHub"
+  ];
+
+  const interests = [
+    "AI in Education", "Computer Vision Applications", "Fitness Technology", 
+    "Academic AI Systems", "Web-Based AI Tools", "Data Analysis Foundations"
+  ];
+
+  return (
+    <section id="about" className="section">
+      <div className="container">
+        
+        {/* Professional Summary */}
+        <div className="section-header reveal" ref={sumRef} style={{marginBottom: '4rem'}}>
+          <span className="section-tag">About Me</span>
+          <h2 className="section-title">Professional Summary</h2>
+          <p style={{marginTop: '1.5rem', color: 'var(--text-secondary)', fontSize: '1.2rem', lineHeight: '1.8', maxWidth: '900px'}}>
+            Artificial Intelligence and Data Science undergraduate with practical exposure to AI-driven academic and fitness applications. Experienced in applying computer vision, basic machine learning concepts, and web technologies to solve real-world problems. Interested in developing structured, user-focused AI systems with strong academic foundations.
+            <br/><br/>
+            <strong>Languages:</strong> English, Malayalam
+          </p>
+        </div>
+
+        {/* Education Section */}
+        <div className="section-header reveal" ref={eduRef} style={{marginBottom: '4rem'}}>
+          <span className="section-tag">Background</span>
+          <h2 className="section-title">Education</h2>
+          <p style={{marginTop: '1.5rem', color: 'var(--text-secondary)', fontSize: '1.1rem'}}>
+            <strong>B.Tech in Artificial Intelligence and Data Science</strong><br/>
+            MES College of Engineering, Kuttippuram, Kerala<br/>
+            <span style={{opacity: 0.7}}>Expected Graduation: June 2026</span>
+          </p>
+        </div>
+
+        {/* Technical Skills */}
+        <div className="section-header reveal" ref={ref}>
+          <span className="section-tag">Expertise</span>
+          <h2 className="section-title">Technical Skills</h2>
+        </div>
+        <div className="skills-container" style={{marginBottom: '4rem'}}>
+          {skills.map((skill, idx) => {
+            const pillRef = useScrollReveal();
+            return (
+              <div key={idx} className="skill-pill reveal" ref={pillRef} style={{transitionDelay: `${idx * 0.05}s`}}>
+                {skill}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Areas of Interest */}
+        <div className="section-header reveal" ref={intRef}>
+          <span className="section-tag">Focus</span>
+          <h2 className="section-title">Areas of Interest</h2>
+        </div>
+        <div className="skills-container">
+          {interests.map((interest, idx) => {
+            const intPillRef = useScrollReveal();
+            return (
+              <div key={idx} className="skill-pill reveal" ref={intPillRef} style={{transitionDelay: `${idx * 0.05}s`, background: 'transparent', border: '1px solid var(--border-light)'}}>
+                {interest}
+              </div>
+            );
+          })}
+        </div>
+
+      </div>
+    </section>
+  );
+};
+
+const Contact = () => {
+  const ref = useScrollReveal();
+  
+  return (
+    <section id="contact" className="section section-bg-white">
+      <div className="container contact-content">
+        <div className="reveal" ref={ref}>
+          <span className="section-tag">Collaborate</span>
+          <h2 className="section-title">Let's build structured AI systems.</h2>
+          
+          <div style={{ marginTop: '3rem', display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
+            <a href="mailto:mishalmuhammed77104.8@gmail.com" className="contact-email" style={{fontSize: '2rem', margin: '1rem 0'}}>
+              mishalmuhammed77104.8@gmail.com
+            </a>
+            
+            <div style={{display: 'flex', gap: '2rem', marginTop: '1rem'}}>
+              <a href="https://linkedin.com/in/mishal-muhammed-a50797353" target="_blank" style={{color: 'var(--text-primary)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '1px'}}>LinkedIn ↗</a>
+              <a href="https://github.com/proteam123" target="_blank" style={{color: 'var(--text-primary)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '1px'}}>GitHub ↗</a>
+            </div>
+            
+            <p style={{ marginTop: '2rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+              📍 Thrissur, Kerala, India • 📞 +91 9072275932
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// --- Main App ---
+const App = () => {
+  return (
+    <React.Fragment>
+      <CustomCursor />
+      <Navbar />
+      <Hero />
+      <About />
+      <Projects />
+      <Contact />
+      <footer>
+        <div className="container">
+          <p>© {new Date().getFullYear()} Mishal Muhammed. All Rights Reserved.</p>
+        </div>
+      </footer>
+    </React.Fragment>
+  );
+};
+
+// Render
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+  </script>
+</body>
+</html>
